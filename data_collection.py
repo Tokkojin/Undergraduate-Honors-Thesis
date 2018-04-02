@@ -12,4 +12,7 @@ data = {
 
 response = requests.post(washington_post_search, data=data)
 
-print(json.loads(response.text))
+# print(json.loads(response.text))
+
+for item in json.loads(response.text)['results']['documents']:
+    print(item['contenturl'])
