@@ -1,0 +1,1 @@
+twitterscraper==0.7.1
