@@ -4,12 +4,12 @@ import json
 import pandas as pd
 
 import nltk
+import string
 
 from nltk.tokenize import TweetTokenizer
 from nltk.sentiment import SentimentAnalyzer
-from nltk.sentiment.util import demo_liu_hu_lexicon as liu_hu_lexicon
 
-from nltk.corpus import opinion_lexicon
+from nltk.corpus import opinion_lexicon, stopwords
 from nltk.tokenize import treebank
 
 from twitterscraper import query_tweets
@@ -22,25 +22,6 @@ def datetime_handler(x):
 
 
 if __name__ == '__main__':
-    # Collecting the tweets
-    # list_of_tweets = query_tweets(("James Franco"), limit=None, begindate=dt.date(2017, 6, 1), enddate=dt.date(2017, 6, 2),
-    #                              poolsize=20, lang='en');
-
-    # with open('james_franco.pkl', 'wb') as outfile:
-    #    pickle.dump(list_of_tweets, outfile)
-
-    # Opening from collection
-    # with open('james_franco.pkl', 'rb') as infile:
-    #     tweets = pickle.load(infile)
-    #
-    # tweets_serial = []
-    # for tweet in tweets:
-    #     tweets_serial.append(tweet.__dict__)
-    #     print(tweet.__dict__)
-    #
-    # with open('james_franco.json', 'w') as outfile:
-    #     json.dump(tweets_serial, outfile, default=datetime_handler)
-
     franco_corpus = pd.read_json('james_franco.json')
     franco_corpus['pol'] = 'neutral'
 
