@@ -17,4 +17,7 @@ tweets['timestamp'].apply(lambda x: to_datetime(x))
 
 tweets_stub = tweets(tweets['timestamp'] >= startDate and tweets['timestamp'] <= endDate)
 
+# https://stackoverflow.com/questions/41783003/how-do-i-convert-timestamp-to-datetime-date-in-pandas-dataframe
+tweets_stub.to_datetime(tweets_stub['timestamp']).date
+
 # look into https://stackoverflow.com/questions/30689445/datetime64-comparison-in-dataframes
