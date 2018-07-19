@@ -1,23 +1,21 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
-from matplotlib import pyplot
-from datetime import datetime, date
+import matplotlib.pyplot as plt
+import seaborn; seaborn.set()
+from datetime import date
 
 tweets = pd.read_json('james_franco_lex_pol.json')
 tweets.sort_values(by='timestamp', inplace=True)
 tweets.where(tweets['timestamp'])
 
-startDate = datetime(2017, 12, 1)
-endDate = datetime(2018, 2, 15)
-
-def to_datetime(x):
-    return datetime.strptime(str(x), '%Y-%m-%d %X')
-
-tweets['timestamp'].apply(lambda x: to_datetime(x))
-
-tweets_stub = tweets(tweets['timestamp'] >= startDate and tweets['timestamp'] <= endDate)
+startDate = date(2017, 12, 15)
+endDate = date(2018, 2, 15)
 
 # https://stackoverflow.com/questions/41783003/how-do-i-convert-timestamp-to-datetime-date-in-pandas-dataframe
-tweets_stub.to_datetime(tweets_stub['timestamp']).date
+tweets['timestamp'] = pd.to_datetime(tweets['timestamp']).apply(lambda x: x.date())
 
-# look into https://stackoverflow.com/questions/30689445/datetime64-comparison-in-dataframes
+tweets_stub = tweets[tweets['timestamp'] >= startDate]
+tweets_stub = tweets_stub[tweets_stub['timestamp'] <= endDate]
+tweets_stub.sort_values(by='timestamp', inplace=True)
+
+tweets_date_grouped = tweets_stub.groupby(by=['timestamp','lexicon_polarity']).count()['text']
