@@ -1,4 +1,4 @@
-import datetime as dt
+from datetime import datetime, date, timedelta
 
 import json
 
@@ -6,10 +6,13 @@ import sys
 
 from twitterscraper import query_tweets
 
-def collect_tweets(name):
+def collect_tweets(name, articleDate):
     name = name.lower()
+    articleDate = datetime.strptime(articleDate, '%m/%d/%y')
+    beginDate = articleDate + timedelta(days=90)
+    endDate = articleDate - timedelta(days=90)
 
-    tweets = query_tweets(name, limit=None, begindate=dt.date(2017, 9, 1), enddate=dt.date(2018, 3, 31),
+    tweets = query_tweets(name, limit=None, begindate=beginDate, enddate=endDate,
                           poolsize=20, lang='en')
 
     tweets_serialized = [tweet.__dict__ for tweet in tweets]
@@ -27,10 +30,13 @@ def datetime_handler(x):
 
 if __name__ == '__main__':
     # Collecting the tweets
-    # James Franco article came out on January 11 2018
-    # Dan Harmon article(?) came out January ? 2018
+    # James Franco ~ January 11 2018
+    # Dan Harmon ~ January ? 2018
+    # Kevin Spacey ~ October 2017
 
     # TODO: May want to add more search terms.
     name = sys.argv[1]
-    print('Collecting tweets for ' + name)
-    collect_tweets(name)
+    articleDate = sys.argv[2]
+    print('Collecting tweets for ' + name + '\n')
+    print('Article release ~ ' + articleDate + '\n')
+    collect_tweets(name, articleDate)
