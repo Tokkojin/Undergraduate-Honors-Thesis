@@ -8,12 +8,13 @@ from twitterscraper import query_tweets
 
 def collect_tweets(name, articleDate):
     name = name.lower()
+
     articleDate = datetime.strptime(articleDate, '%m/%d/%y')
     beginDate = articleDate + timedelta(days=90)
     endDate = articleDate - timedelta(days=90)
 
     tweets = query_tweets(name, limit=None, begindate=beginDate, enddate=endDate,
-                          poolsize=20, lang='en')
+                          poolsize=50, lang='en')
 
     tweets_serialized = [tweet.__dict__ for tweet in tweets]
 
@@ -37,6 +38,8 @@ if __name__ == '__main__':
     # TODO: May want to add more search terms.
     name = sys.argv[1]
     articleDate = sys.argv[2]
-    print('Collecting tweets for ' + name + '\n')
+
+    print('Collecting tweets for ' + name)
     print('Article release ~ ' + articleDate + '\n')
+    
     collect_tweets(name, articleDate)

@@ -6,6 +6,8 @@ from nltk.sentiment import SentimentAnalyzer
 from nltk.corpus import opinion_lexicon, stopwords
 from nltk.tokenize import treebank
 
+import sys
+
 tknz = TweetTokenizer()
 sa = SentimentAnalyzer()
 
@@ -39,12 +41,14 @@ def get_lexicon_polarity(row):
     return polarity
 
 if __name__ == '__main__':
-    franco_corpus = pd.read_json('james_franco.json')
+    infile = sys.argv[1] + '.json'
+    outfile = sys.argv[1] + '_lex_pol.json'
 
-    franco_corpus['lexicon_polarity'] = franco_corpus.progress_apply(get_lexicon_polarity, axis=1)
+    corpus = pd.read_json(infile)
 
-    franco_corpus.to_json(path_or_buf='james_franco_lex_pol.json')
+    corpus['lexicon_polarity'] = corpus.progress_apply(get_lexicon_polarity, axis=1)
 
+    corpus.to_json(path_or_buf=outfile)
 
     # not dealing with duplicates -- adding them to score
     # give a higher score for having been retweeted?
