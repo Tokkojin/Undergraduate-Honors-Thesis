@@ -1,25 +1,20 @@
 import pandas as pd
-from tqdm import tqdm, tqdm_pandas
 
-from nltk.tokenize import TweetTokenizer
-from nltk.sentiment import SentimentAnalyzer
-from nltk.corpus import opinion_lexicon, stopwords
+from nltk.corpus import opinion_lexicon
 from nltk.tokenize import treebank
 
 import sys
 
-tknz = TweetTokenizer()
-sa = SentimentAnalyzer()
+from multiprocessing import cpu_count, Pool
+
+from tqdm import tqdm
 
 tokenizer = treebank.TreebankWordTokenizer()
 
-# Create and register a new `tqdm` instance with `pandas`
-# (can use tqdm_gui, optional kwargs, etc.)
-tqdm_pandas(tqdm())
 
-def get_lexicon_polarity(row):
+def get_lexicon_polarity(corpus, index, row):
     # Possible improvements: Make entity-based; consider lexicon in context
-    polarity = ''
+    polarity = 'NaN'
     pos_words = 0
     neg_words = 0
 
@@ -38,15 +33,33 @@ def get_lexicon_polarity(row):
     elif pos_words == neg_words:
         polarity = 'neutral'
 
-    return polarity
+    corpus.at[index,'lex_polarity'] = polarity
+
 
 if __name__ == '__main__':
     infile = sys.argv[1] + '.json'
     outfile = sys.argv[1] + '_lex_pol.json'
 
-    corpus = pd.read_json(infile)
+    print('reading from ' + infile)
 
-    corpus['lexicon_polarity'] = corpus.progress_apply(get_lexicon_polarity, axis=1)
+    corpus = pd.read_json(infile)
+    corpus['lex_polarity'] = ''
+
+    pool = Pool(cpu_count())
+
+    print('identifying sentiments...')
+
+    # pool.map(get_lexicon_polarity, corpus.iterrows())
+
+    for index, row in tqdm(corpus.iterrows()):
+        pool.apply_async(get_lexicon_polarity, args=(corpus, index, row))
+
+    pool.close()
+    pool.join()
+
+    # corpus['lexicon_polarity'] = corpus.progress_apply(get_lexicon_polarity, axis=1)
+
+    print('saving to ' + outfile)
 
     corpus.to_json(path_or_buf=outfile)
 
