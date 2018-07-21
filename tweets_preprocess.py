@@ -1,25 +1,21 @@
 import pandas as pd
-from tqdm import tqdm, tqdm_pandas
 
-from nltk.tokenize import TweetTokenizer
-from nltk.sentiment import SentimentAnalyzer
-from nltk.corpus import opinion_lexicon, stopwords
+from nltk.corpus import opinion_lexicon
 from nltk.tokenize import treebank
 
 import sys
 
-tknz = TweetTokenizer()
-sa = SentimentAnalyzer()
+from multiprocessing import cpu_count, Pool
+
+from tqdm import tqdm
+
+from datetime import datetime
 
 tokenizer = treebank.TreebankWordTokenizer()
 
-# Create and register a new `tqdm` instance with `pandas`
-# (can use tqdm_gui, optional kwargs, etc.)
-tqdm_pandas(tqdm())
-
 def get_lexicon_polarity(row):
     # Possible improvements: Make entity-based; consider lexicon in context
-    polarity = ''
+    polarity = 'NaN'
     pos_words = 0
     neg_words = 0
 
@@ -38,15 +34,46 @@ def get_lexicon_polarity(row):
     elif pos_words == neg_words:
         polarity = 'neutral'
 
+    # print(row['text'] + ': ' + polarity)
+
     return polarity
+
+def process_data(func, df, num_processes=None):
+    if num_processes == None:
+        num_processes = min(df.shape[0], cpu_count())
+
+    with Pool(processes = num_processes) as pool:
+        seq = []
+
+        for index, row in df.iterrows():
+            seq.append(row)
+
+        results_list = list(tqdm(pool.imap(get_lexicon_polarity, seq), total=len(df.index)))
+
+        df['lex_polarity'] = results_list
 
 if __name__ == '__main__':
     infile = sys.argv[1] + '.json'
     outfile = sys.argv[1] + '_lex_pol.json'
 
+    print('reading from ' + infile)
+
     corpus = pd.read_json(infile)
 
-    corpus['lexicon_polarity'] = corpus.progress_apply(get_lexicon_polarity, axis=1)
+    # Enable to debug
+    # corpus = corpus.head(10)
+    corpus['lex_polarity'] = ''
+
+    print('identifying sentiments...')
+
+    # start = datetime.now()
+    process_data(get_lexicon_polarity, corpus, num_processes=cpu_count())
+    # print('time elapsed: ' + str(datetime.now() - start))
+
+    #corpus['lexicon_polarity'] = pool.apply_async(corpus.apply,
+     #                                             args=(get_lexicon_polarity, 'axis=1'))
+
+    print('saving to ' + outfile)
 
     corpus.to_json(path_or_buf=outfile)
 

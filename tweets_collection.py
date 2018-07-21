@@ -41,5 +41,5 @@ if __name__ == '__main__':
 
     print('Collecting tweets for ' + name)
     print('Article release ~ ' + articleDate + '\n')
-    
+
     collect_tweets(name, articleDate)
