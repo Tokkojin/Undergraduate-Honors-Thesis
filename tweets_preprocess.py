@@ -60,21 +60,10 @@ if __name__ == '__main__':
 
     corpus = pd.read_json(infile)
 
-    # Enable to debug
-    # corpus = corpus.head(10)
-    corpus['lex_polarity'] = ''
-
     print('identifying sentiments...')
-
-    # start = datetime.now()
     process_data(get_lexicon_polarity, corpus, num_processes=cpu_count())
-    # print('time elapsed: ' + str(datetime.now() - start))
-
-    #corpus['lexicon_polarity'] = pool.apply_async(corpus.apply,
-     #                                             args=(get_lexicon_polarity, 'axis=1'))
 
     print('saving to ' + outfile)
-
     corpus.to_json(path_or_buf=outfile)
 
     # not dealing with duplicates -- adding them to score
