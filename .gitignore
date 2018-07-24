@@ -3,4 +3,5 @@ twitterscraper/
 literature review/
 undergradHonors/
 *.json
+*.pkl
 .ipynb_checkpoints/
