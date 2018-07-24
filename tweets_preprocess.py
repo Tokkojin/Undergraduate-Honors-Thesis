@@ -11,8 +11,7 @@ from tqdm import tqdm
 
 tokenizer = treebank.TreebankWordTokenizer()
 
-
-def get_lexicon_polarity(corpus, index, row):
+def get_lexicon_polarity(row):
     # Possible improvements: Make entity-based; consider lexicon in context
     polarity = 'NaN'
     pos_words = 0
@@ -33,8 +32,23 @@ def get_lexicon_polarity(corpus, index, row):
     elif pos_words == neg_words:
         polarity = 'neutral'
 
-    corpus.at[index,'lex_polarity'] = polarity
+    # print(row['text'] + ': ' + polarity)
 
+    return polarity
+
+def process_data(func, df, num_processes=None):
+    if num_processes == None:
+        num_processes = min(df.shape[0], cpu_count())
+
+    with Pool(processes = num_processes) as pool:
+        seq = []
+
+        for index, row in df.iterrows():
+            seq.append(row)
+
+        results_list = list(tqdm(pool.imap(get_lexicon_polarity, seq), total=len(df.index)))
+
+        df['lex_polarity'] = results_list
 
 if __name__ == '__main__':
     infile = sys.argv[1] + '.json'
@@ -43,24 +57,11 @@ if __name__ == '__main__':
     print('reading from ' + infile)
 
     corpus = pd.read_json(infile)
-    corpus['lex_polarity'] = ''
-
-    pool = Pool(cpu_count())
 
     print('identifying sentiments...')
-
-    # pool.map(get_lexicon_polarity, corpus.iterrows())
-
-    for index, row in tqdm(corpus.iterrows()):
-        pool.apply_async(get_lexicon_polarity, args=(corpus, index, row))
-
-    pool.close()
-    pool.join()
-
-    # corpus['lexicon_polarity'] = corpus.progress_apply(get_lexicon_polarity, axis=1)
+    process_data(get_lexicon_polarity, corpus, num_processes=cpu_count())
 
     print('saving to ' + outfile)
-
     corpus.to_json(path_or_buf=outfile)
 
     # not dealing with duplicates -- adding them to score
