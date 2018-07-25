@@ -9,8 +9,6 @@ from multiprocessing import cpu_count, Pool
 
 from tqdm import tqdm
 
-from datetime import datetime
-
 tokenizer = treebank.TreebankWordTokenizer()
 
 def get_lexicon_polarity(row):
