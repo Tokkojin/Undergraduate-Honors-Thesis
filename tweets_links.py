@@ -11,7 +11,7 @@ def find_URL(row):
     URLs = re.findall(r'(https?://[^\s]+)', row['text'])
     
     for URL in URLs:
-        csvwriter.writerows( [[str(row['timestamp']), URL, row['likes'], row['replies'], row['retweets']]] )
+        csvwriter.writerows( [[str(row['id']), str(row['timestamp']), URL, row['likes'], row['replies'], row['retweets']]] )
 
 if __name__ == '__main__':
     infile = sys.argv[1] + '.json'
@@ -22,7 +22,7 @@ if __name__ == '__main__':
     
     f = open(outfile, 'w', newline='')
     csvwriter = csv.writer(f)
-    csvwriter.writerows( [['timestamp', 'URL', 'likes', 'replies', 'retweets']] )
+    csvwriter.writerows( [['id', 'timestamp', 'URL', 'likes', 'replies', 'retweets']] )
     
     corpus.apply(find_URL, axis=1)
     
