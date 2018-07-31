@@ -9,7 +9,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from bs4.element import Comment
 
-from sklearn.feature_extraction.text import CountVectorizer
+# from sklearn.feature_extraction.text import CountVectorizer
 
 def tag_visible(element):
     if element.parent.name in ['style', 'script', 'head', 'title', 'meta', '[document]']:
@@ -17,7 +17,6 @@ def tag_visible(element):
     if isinstance(element, Comment):
         return False
     return True
-
 
 def text_from_html(body):
     soup = BeautifulSoup(body, 'html.parser')
@@ -51,7 +50,7 @@ if __name__ == '__main__':
                 html_page = urlopen(link)
                 body = text_from_html(html_page)
                 if(len(body) > 0):
-                    print(body)
+                    
             except HTTPError as e:
                 print('The server couldn\'t fulfill the request.')
                 print('Error code: ', e.code)
