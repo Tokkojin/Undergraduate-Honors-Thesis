@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import pickle
 import sys
 import string
 from urllib.request import urlopen
@@ -39,18 +40,16 @@ if __name__ == '__main__':
     # where each character in the string is mapped
     # to None
     translator = str.maketrans('', '', string.punctuation)
+    id_body_dict = {}
     
-    # bow = CountVectorizer()
-    
-    for link in links.values():
-
+    for uid, link in links.items():
         link_clean = link.translate(translator)
         if(link_clean.find('youtube') == -1 and link_clean.find('twitter') == -1):
             try:
                 html_page = urlopen(link)
                 body = text_from_html(html_page)
                 if(len(body) > 0):
-                    
+                    id_body_dict[uid] = body
             except HTTPError as e:
                 print('The server couldn\'t fulfill the request.')
                 print('Error code: ', e.code)
@@ -59,4 +58,12 @@ if __name__ == '__main__':
                 print('Reason: ', e.reason)
             else:
                 print('?')
+    
+    outpickle = sys.argv[1] + '.pickle'
+    
+    with open(outpickle, 'wb') as handle:
+        pickle.dump(id_body_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+#    with open('filename.pickle', 'rb') as handle:
+#        b = pickle.load(handle)
     
