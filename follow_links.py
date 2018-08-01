@@ -59,7 +59,7 @@ if __name__ == '__main__':
             else:
                 print('?')
     
-    outpickle = sys.argv[1] + '.pickle'
+    outpickle = sys.argv[1] + '_linkbodytext.pkl'
     
     with open(outpickle, 'wb') as handle:
         pickle.dump(id_body_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
