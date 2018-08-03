@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import json
-import pickle
-import pprint
 import sys
 import string
-import time
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
+
+from tqdm import tqdm
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -43,10 +42,10 @@ if __name__ == '__main__':
     # where each character in the string is mapped
     # to None
     translator = str.maketrans('', '', string.punctuation)
-    pp = pprint.PrettyPrinter(indent=4)
+    
     id_body_dict = {}
     
-    for uid, link in links.items():
+    for uid, link in tqdm(links.items()):
         link_clean = link.translate(translator)
         if(link_clean.find('youtube') == -1 and link_clean.find('twitter') == -1
            and link_clean.find('facebook') == -1):
@@ -55,15 +54,14 @@ if __name__ == '__main__':
                 body = text_from_html(html_page)
                 if(len(body) > 0):
                     id_body_dict[uid] = body
-                time.sleep(30)
             except HTTPError as e:
                 print('The server couldn\'t fulfill the request.')
                 print('Error code: ', e.code)
             except URLError as e:
                 print('We failed to reach a server.')
                 print('Reason: ', e.reason)
-            else:
-                print('?')
+            except:
+                print("Unexpected error:", sys.exc_info()[0])
 
     outfile = sys.argv[1] + '_linkbodytext.json'
     
