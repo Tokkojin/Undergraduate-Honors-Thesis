@@ -5,6 +5,7 @@ import pickle
 import pprint
 import sys
 import string
+import time
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
@@ -54,6 +55,7 @@ if __name__ == '__main__':
                 body = text_from_html(html_page)
                 if(len(body) > 0):
                     id_body_dict[uid] = body
+                time.sleep(30)
             except HTTPError as e:
                 print('The server couldn\'t fulfill the request.')
                 print('Error code: ', e.code)
