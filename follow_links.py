@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import json
 import pickle
 import pprint
 import sys
@@ -46,13 +47,13 @@ if __name__ == '__main__':
     
     for uid, link in links.items():
         link_clean = link.translate(translator)
-        if(link_clean.find('youtube') == -1 and link_clean.find('twitter') == -1):
+        if(link_clean.find('youtube') == -1 and link_clean.find('twitter') == -1
+           and link_clean.find('facebook') == -1):
             try:
                 html_page = urlopen(link)
                 body = text_from_html(html_page)
                 if(len(body) > 0):
                     id_body_dict[uid] = body
-                    pp.pprint(id_body_dict)
             except HTTPError as e:
                 print('The server couldn\'t fulfill the request.')
                 print('Error code: ', e.code)
@@ -61,12 +62,9 @@ if __name__ == '__main__':
                 print('Reason: ', e.reason)
             else:
                 print('?')
-    
-    outpickle = sys.argv[1] + '_linkbodytext.pkl'
-    
-    with open(outpickle, 'wb') as handle:
-        pickle.dump(id_body_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-#    with open('filename.pickle', 'rb') as handle:
-#        b = pickle.load(handle)
+    outfile = sys.argv[1] + '_linkbodytext.json'
+    
+    with open('result.json', 'w') as fp:
+        json.dump(id_body_dict, fp)
     
