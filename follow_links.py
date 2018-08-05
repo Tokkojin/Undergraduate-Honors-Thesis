@@ -50,6 +50,7 @@ def page_scrape(tuple):
 
 if __name__ == '__main__':
     infile = sys.argv[1] + '.csv'
+    outfile = sys.argv[1] + '_linkbodytext.json'
 
     df = pd.read_csv(infile)
     
@@ -66,8 +67,6 @@ if __name__ == '__main__':
 
     with Pool(processes = cpu_count()) as pool:
         results = list(tqdm(pool.imap(page_scrape, links.items()), total=len(links.items())))
-
-    outfile = sys.argv[1] + '_linkbodytext.json'
     
     with open(outfile, 'w') as fp:
         json.dump(results, fp)
