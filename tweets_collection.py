@@ -4,21 +4,26 @@ import json
 
 import sys
 
-from twitterscraper import query_tweets
+from twitterscraper import query
 
 def collect_tweets(name, articleDate):
     name = name.lower()
 
     articleDate = datetime.strptime(articleDate, '%m/%d/%y')
-    beginDate = articleDate + timedelta(days=90)
-    endDate = articleDate - timedelta(days=90)
+    beginDate = (articleDate - timedelta(days=90)).date()
+    endDate = (articleDate + timedelta(days=90)).date()
 
-    tweets = query_tweets(name, limit=None, begindate=beginDate, enddate=endDate,
-                          poolsize=50, lang='en')
+    # Collect tweets with mentions in the form of "FirstName LastName"
+    tweets = query.query_tweets(name, limit=None, begindate=beginDate, enddate=endDate, poolsize=40, lang='en')
+    tweets_serialized_pt1 = [tweet.__dict__ for tweet in tweets]
 
-    tweets_serialized = [tweet.__dict__ for tweet in tweets]
+    # Collect tweets with mentions in the form of "FirstNameLastName"
+    no_space_name = name.replace(' ', '')
 
-    outfile_str = name.replace(' ', '_') + '.json'
+    tweets = query.query_tweets(no_space_name, limit=None, begindate=beginDate, enddate=endDate, poolsize=40, lang='en')
+    tweets_serialized_pt2 = [tweet.__dict__ for tweet in tweets]
+
+    tweets_serialized = tweets_serialized_pt1 + tweets_serialized_pt2
 
     with open(outfile_str, 'w') as outfile:
         json.dump(tweets_serialized, outfile, default=datetime_handler)
@@ -36,8 +41,8 @@ if __name__ == '__main__':
     # Kevin Spacey ~ October 2017
 
     # TODO: May want to add more search terms.
-    name = sys.argv[1]
-    articleDate = sys.argv[2]
+    name = input("Name (FirstName LastName): ")
+    articleDate = input("Article date (mm/dd/yy): ")
 
     print('Collecting tweets for ' + name)
     print('Article release ~ ' + articleDate + '\n')
