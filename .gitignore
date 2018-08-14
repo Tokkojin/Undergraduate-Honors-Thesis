@@ -6,3 +6,5 @@ undergradHonors/
 *.pkl
 *.csv
 .ipynb_checkpoints/
+*.jar
+SentiStrength_Data/
