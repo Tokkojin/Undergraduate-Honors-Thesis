@@ -49,7 +49,7 @@ if __name__ == '__main__':
     tfidf_matrix = vectorizer.fit_transform(corpus)
     terms = vectorizer.get_feature_names()
     
-    num_clusters = 5
+    num_clusters = 7
     
     km = KMeans(n_clusters=num_clusters)
     
@@ -57,9 +57,16 @@ if __name__ == '__main__':
     
     clusters = km.labels_.tolist()
     link_text['clusters'] = clusters
-    .value_counts()
     
     joblib.dump(km,  'doc_cluster.pkl')
+    
+    df1 = link_text[link_text['clusters'] == 1]
+    df2 = link_text[link_text['clusters'] == 2]
+    df3 = link_text[link_text['clusters'] == 3]
+    df4 = link_text[link_text['clusters'] == 4]
+    df5 = link_text[link_text['clusters'] == 5]
+    df6 = link_text[link_text['clusters'] == 6]
+    df0 = link_text[link_text['clusters'] == 0]
     
     #km = joblib.load('doc_cluster.pkl')
     clusters = km.labels_.tolist()
