@@ -6,12 +6,12 @@ import sys
 
 from twitterscraper import query
 
-def collect_tweets(name, articleDate):
+def collect_tweets(name, articleDate, delta=30):
     name = name.lower()
 
     articleDate = datetime.strptime(articleDate, '%m/%d/%y')
-    beginDate = (articleDate - timedelta(days=90)).date()
-    endDate = (articleDate + timedelta(days=90)).date()
+    beginDate = (articleDate - timedelta(days=delta)).date()
+    endDate = (articleDate + timedelta(days=delta)).date()
 
     # Collect tweets with mentions in the form of "FirstName LastName"
     tweets = query.query_tweets(name, limit=None, begindate=beginDate, enddate=endDate, poolsize=40, lang='en')
@@ -43,8 +43,13 @@ if __name__ == '__main__':
     # TODO: May want to add more search terms.
     name = input("Name (FirstName LastName): ")
     articleDate = input("Article date (mm/dd/yy): ")
+    days = input("Number of days before/after to look at: ")
 
     print('Collecting tweets for ' + name)
     print('Article release ~ ' + articleDate + '\n')
-
-    collect_tweets(name, articleDate)
+    if(!days):
+        print("Looking at tweets 30 days before and after article release")
+        collect_tweets(name, articleDate)    
+    else: 
+        print("Looking at tweets " + str(days) + " days before and after article release")
+        collect_tweets(name, articleDate, days)
