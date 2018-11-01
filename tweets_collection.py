@@ -25,6 +25,8 @@ def collect_tweets(name, articleDate, delta=30):
 
     tweets_serialized = tweets_serialized_pt1 + tweets_serialized_pt2
 
+    outfile_str =  no_space_name + '_tweets' + '.json'
+
     with open(outfile_str, 'w') as outfile:
         json.dump(tweets_serialized, outfile, default=datetime_handler)
         print('tweets saved!')
@@ -47,9 +49,9 @@ if __name__ == '__main__':
 
     print('Collecting tweets for ' + name)
     print('Article release ~ ' + articleDate + '\n')
-    if(!days):
+    if not days:
         print("Looking at tweets 30 days before and after article release")
         collect_tweets(name, articleDate)    
     else: 
         print("Looking at tweets " + str(days) + " days before and after article release")
-        collect_tweets(name, articleDate, days)
+        collect_tweets(name, articleDate, int(days))
