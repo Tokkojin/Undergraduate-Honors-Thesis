@@ -14,13 +14,13 @@ def collect_tweets(name, articleDate, delta=30):
     endDate = (articleDate + timedelta(days=delta)).date()
 
     # Collect tweets with mentions in the form of "FirstName LastName"
-    tweets = query.query_tweets(name, limit=None, begindate=beginDate, enddate=endDate, poolsize=40, lang='en')
+    tweets = query.query_tweets(name, limit=None, begindate=beginDate, enddate=endDate, poolsize=5, lang='en')
     tweets_serialized_pt1 = [tweet.__dict__ for tweet in tweets]
 
     # Collect tweets with mentions in the form of "FirstNameLastName"
     no_space_name = name.replace(' ', '')
 
-    tweets = query.query_tweets(no_space_name, limit=None, begindate=beginDate, enddate=endDate, poolsize=40, lang='en')
+    tweets = query.query_tweets(no_space_name, limit=None, begindate=beginDate, enddate=endDate, poolsize=5, lang='en')
     tweets_serialized_pt2 = [tweet.__dict__ for tweet in tweets]
 
     tweets_serialized = tweets_serialized_pt1 + tweets_serialized_pt2
