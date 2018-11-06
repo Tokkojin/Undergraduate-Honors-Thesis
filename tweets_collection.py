@@ -1,3 +1,5 @@
+import datetime as dt
+
 from datetime import datetime, date, timedelta
 
 import json
@@ -19,29 +21,29 @@ def collect_tweets(name, articleDate, delta=30):
 
     # Collect tweets with mentions in the form of "FirstNameLastName"
     no_space_name = name.replace(' ', '')
+    underline_name = name.replace(' ', '_')
 
     tweets = query.query_tweets(no_space_name, limit=None, begindate=beginDate, enddate=endDate, poolsize=5, lang='en')
     tweets_serialized_pt2 = [tweet.__dict__ for tweet in tweets]
 
     tweets_serialized = tweets_serialized_pt1 + tweets_serialized_pt2
 
-    outfile_str =  no_space_name + '_tweets' + '.json'
+    print(tweets_serialized_pt1)
+
+    outfile_str = underline_name + '_tweets' + '.json'
 
     with open(outfile_str, 'w') as outfile:
         json.dump(tweets_serialized, outfile, default=datetime_handler)
         print('tweets saved!')
+
 
 def datetime_handler(x):
     if isinstance(x, dt.datetime):
         return x.isoformat()
     raise TypeError('Unknown type')
 
-if __name__ == '__main__':
-    # Collecting the tweets
-    # James Franco ~ January 11 2018
-    # Dan Harmon ~ January ? 2018
-    # Kevin Spacey ~ October 2017
 
+if __name__ == '__main__':
     # TODO: May want to add more search terms.
     name = input("Name (FirstName LastName): ")
     articleDate = input("Article date (mm/dd/yy): ")
