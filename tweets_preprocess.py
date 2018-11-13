@@ -1,40 +1,22 @@
 import pandas as pd
-
-from nltk.corpus import opinion_lexicon
-from nltk.tokenize import treebank
-
 import sys
-
 from multiprocessing import cpu_count, Pool
-
 from tqdm import tqdm
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-tokenizer = treebank.TreebankWordTokenizer()
+analyzer = SentimentIntensityAnalyzer()
 
-def get_lexicon_polarity(row):
-    # Possible improvements: Make entity-based; consider lexicon in context
-    polarity = 'NaN'
-    pos_words = 0
-    neg_words = 0
+def vader_sentiment(row):
+    vs = analyzer.polarity_scores(row['text'])
 
-    tokenized_sent = [word.lower() for word in tokenizer.tokenize(row['text'])]
+    score = vs['compound']
 
-    for word in tokenized_sent:
-        if word in opinion_lexicon.positive():
-            pos_words += 1
-        elif word in opinion_lexicon.negative():
-            neg_words += 1
-
-    if pos_words > neg_words:
-        polarity = 'positive'
-    elif pos_words < neg_words:
-        polarity = 'negative'
-    elif pos_words == neg_words:
-        polarity = 'neutral'
-
-    # print(row['text'] + ': ' + polarity)
-
-    return polarity
+    if score < -0.05:
+        return 'negative'
+    elif score > 0.05:
+        return 'positive'
+    else:
+        return 'neutral'
 
 def process_data(func, df, num_processes=None):
     if num_processes == None:
@@ -46,7 +28,7 @@ def process_data(func, df, num_processes=None):
         for index, row in df.iterrows():
             seq.append(row)
 
-        results_list = list(tqdm(pool.imap(get_lexicon_polarity, seq), total=len(df.index)))
+        results_list = list(tqdm(pool.imap(func, seq), total=len(df.index)))
 
         df['lex_polarity'] = results_list
 
@@ -59,7 +41,7 @@ if __name__ == '__main__':
     corpus = pd.read_json(infile)
 
     print('identifying sentiments...')
-    process_data(get_lexicon_polarity, corpus, num_processes=cpu_count())
+    process_data(vader_sentiment, corpus, num_processes=cpu_count())
 
     print('saving to ' + outfile)
     corpus.to_json(path_or_buf=outfile)
