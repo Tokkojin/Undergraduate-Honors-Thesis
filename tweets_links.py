@@ -22,16 +22,16 @@ def find_URL(row):
             count += 1
 
 if __name__ == '__main__':
-    infile = sys.argv[1] + '.json'
-    outfile = sys.argv[1] + '.csv'
+    infile = sys.argv[1] + '.pkl'
+    outfile = sys.argv[1] + '_links.csv'
 
     with open(infile, 'rb') as fp:
-        corpus = pd.read_json(infile)
-    
+        corpus = pd.read_pickle(infile)
+
     f = open(outfile, 'w', newline='')
     csvwriter = csv.writer(f)
     csvwriter.writerows( [['id', 'timestamp', 'URL', 'likes', 'replies', 'retweets']] )
-    
+
     corpus.apply(find_URL, axis=1)
     
     f.close()

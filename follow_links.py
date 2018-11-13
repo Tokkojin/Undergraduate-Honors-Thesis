@@ -49,12 +49,13 @@ def page_scrape(tuple):
             print("Unexpected error:", sys.exc_info()[0])
 
 if __name__ == '__main__':
-    infile = sys.argv[1] + '.csv'
+    infile = sys.argv[1] + '.pkl'
     outfile = sys.argv[1] + '_linkbodytext.json'
 
-    df = pd.read_csv(infile)
-    
-    links = dict(zip(df.id, df.URL))
+    df = pd.read_pickle(infile)
+    df = df.drop_duplicates()
+
+    links = dict(zip(df.id, df.url))
     
     # This uses the 3-argument version of str.maketrans
     # with arguments (x, y, z) where 'x' and 'y'

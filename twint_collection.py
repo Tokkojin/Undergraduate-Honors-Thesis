@@ -2,11 +2,14 @@
 
 from datetime import datetime, date, timedelta
 
+from multiprocessing import Process, Value, Array
+
 import json
 
 import sys
 
-import twint
+from twint import twint
+
 c = twint.Config()
 
 
@@ -46,7 +49,11 @@ if __name__ == '__main__':
     print('Article release ~ ' + articleDate + '\n')
     if not days:
         print("Looking at tweets 30 days before and after article release")
-        collect_tweets(name, articleDate)
+        p = Process(target=collect_tweets, args=(name, articleDate))
+        p.start()
+        p.join()
     else:
         print("Looking at tweets " + str(days) + " days before and after article release")
-        collect_tweets(name, articleDate, int(days))
+        p = Process(target=collect_tweets, args=(name, articleDate, int(days)))
+        p.start()
+        p.join()

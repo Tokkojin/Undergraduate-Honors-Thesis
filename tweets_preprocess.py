@@ -6,8 +6,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 analyzer = SentimentIntensityAnalyzer()
 
-def vader_sentiment(row):
-    vs = analyzer.polarity_scores(row['text'])
+def vader_sentiment(txt):
+    vs = analyzer.polarity_scores(txt)
 
     score = vs['compound']
 
@@ -23,10 +23,7 @@ def process_data(func, df, num_processes=None):
         num_processes = min(df.shape[0], cpu_count())
 
     with Pool(processes = num_processes) as pool:
-        seq = []
-
-        for index, row in df.iterrows():
-            seq.append(row)
+        seq = df['text'].tolist()
 
         results_list = list(tqdm(pool.imap(func, seq), total=len(df.index)))
 
