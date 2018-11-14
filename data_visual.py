@@ -2,26 +2,41 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from datetime import date
+
+from datetime import datetime
+
+import sys
+import os
 
 sns.set()
 
-tweets = pd.read_json('james_franco_lex_pol.json')
-tweets.sort_values(by='timestamp', inplace=True)
-startDate = date(2017, 12, 15)
-endDate = date(2018, 2, 15)
+if __name__ == '__main__':
+    celebrity = sys.argv[1]
+    filename = os.getcwd() + '/lex_pol/' + celebrity.replace(' ', '_').lower() + '.json'
 
-tweets['timestamp'] = pd.to_datetime(tweets['timestamp']).apply(lambda x: x.date())
+    articleDate = input("Article date (mm/dd/yy): ")
+    articleDate = datetime.strptime(articleDate, '%m/%d/%y')
 
-tweets_stub = tweets[tweets['timestamp'] >= startDate]
-tweets_stub = tweets_stub[tweets_stub['timestamp'] <= endDate]
-tweets_stub.sort_values(by='timestamp', inplace=True)
+    chunk_of_tweets = pd.read_json(filename, date_unit='ms', lines=True, chunksize=1000000000)
 
-df = tweets_stub.groupby(['timestamp', 'lexicon_polarity']).size()
-df = df.reset_index()
-df.columns = ['timestamp', 'polarity', 'size']
-# df = df.pivot(index='timestamp', columns='polarity', values='size')
-ax = sns.lineplot(x='timestamp', y='size', hue='polarity', palette='pastel', data=df)
-ax.set_xlabel = "Date"
-ax.set_ylabel = "Number of Tweets"
-plt.show()
+    for tweets in chunk_of_tweets:
+        df = pd.DataFrame()
+        df['text'] = pd.DataFrame.from_dict(tweets.iloc[0]['text'], orient='index')[0].tolist()
+        df['timestamp'] = pd.DataFrame.from_dict(tweets.iloc[0]['timestamp'], orient='index')[0].tolist()
+        df['lex_polarity'] = pd.DataFrame.from_dict(tweets.iloc[0]['lex_polarity'], orient='index')[0].tolist()
+
+        df['timestamp'] = df['timestamp'].apply(lambda ms: datetime.fromtimestamp(ms/1000.0))
+        df.sort_values(by='timestamp', inplace=True)
+        df = df.groupby(['timestamp','lex_polarity']).size()
+        df = df.reset_index()
+
+        df.columns = ['timestamp', 'polarity', 'size']
+
+        dims = (20, 7)
+        fig, ax = plt.subplots(figsize=dims)
+
+        ax = sns.lineplot(ax=ax, x='timestamp', y='size', hue='polarity', palette='pastel', data=df)
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Number of Tweets")
+
+        fig.savefig(celebrity + ".pdf")
